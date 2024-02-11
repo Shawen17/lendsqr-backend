@@ -4,10 +4,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view 
 from rest_framework import status
 from django.http import JsonResponse
+import os
 
+
+db_user = os.environ.get("USERNAME")
+db_password=os.environ.get("PASSWORD")
+db_cluster = os.environ.get("CLUSTERNAME")
 
 client = pymongo.MongoClient(
-    "mongodb+srv://shawen17:Shawenbaba1@shawencluster.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
+    f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
 
 db = client['user_details']
 
