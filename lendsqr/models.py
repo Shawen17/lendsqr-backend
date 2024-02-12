@@ -11,24 +11,12 @@ from django.contrib.auth.models import Group, Permission
 
 
 class User(AbstractUser):
-    username= None
+    username = None
     email=models.EmailField(_('email address'),unique=True)
     state=models.CharField(max_length=50,default='Lagos')
 
-
-    groups = models.ManyToManyField(
-        Group,
-        verbose_name=_('groups'),
-        blank=True,
-        related_name='%(class)s_groups'  # Custom related_name for groups
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        verbose_name=_('user permissions'),
-        blank=True,
-        related_name='%(class)s_user_permissions'  # Custom related_name for user_permissions
-    )
-    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['first_name','last_name','state','password']
 
     class Meta:
         verbose_name=_('user')
@@ -36,12 +24,8 @@ class User(AbstractUser):
 
     objects=UserManager()
 
-    USERNAME_FIELD='email'
-    REQUIRED_FIELDS=['first_name','last_name','state','password']
-
     def __str__(self):
         return self.email
-
 
     def get_full_name(self):
         return f'{self.first_name} {self.last_name}'

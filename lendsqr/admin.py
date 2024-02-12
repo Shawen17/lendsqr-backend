@@ -24,4 +24,6 @@ class UserAdmin(BaseUserAdmin):
     )
 
     list_display=['email','first_name','last_name','state']
+    list_filter = ['is_staff', 'is_superuser', 'is_active', 'groups']
+    search_fields = ['email', 'first_name', 'last_name']
     ordering=('email',)
