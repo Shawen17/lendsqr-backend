@@ -1,16 +1,21 @@
 import pymongo
 import random
 import string
+from decouple import config
 
 
+
+db_user = config("DB_USER")
+db_password=config("PASSWORD")
+db_cluster = config("CLUSTERNAME")
 
 client = pymongo.MongoClient(
-    "mongodb+srv://shawen17:Shawenbaba1@shawencluster.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
+    f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
 
-db = client['user_details']
-# documents = db['users'].find({"userName": {"$exists": True}})
+# db = client['user_details']
+# documents = db['users'].find({"education.level": {"$exists": True}})
 # for doc in documents:
-#     field_value = doc.pop("userName")
+#     field_value = doc.pop("education.level")
 #     doc["profile.userName"] = field_value
 #     db['users'].update_one({"_id": doc["_id"]}, {"$set": {"profile.userName":field_value}})
 # db['users'].update_many({}, {"$unset": {"userName": ""}})
@@ -97,5 +102,5 @@ def add_random_nested_field_values():
         db['users'].update_one({"_id": doc["_id"]}, {"$set": {"account.monthlyIncome": monthly_income, "account.loanRepayment": loan_repayment}})
 
 # Example usage: Add random nested field values to the "account" field in all documents
-add_random_nested_field_values()
+# add_random_nested_field_values()
 
