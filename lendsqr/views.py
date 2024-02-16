@@ -9,23 +9,21 @@ import json
 import os 
 from django.conf import settings
 from datetime import datetime
+from bson.objectid import ObjectId
 
 
 db_user = config("DB_USER")
 db_password=config("PASSWORD")
 db_cluster = config("CLUSTERNAME")
+client = pymongo.MongoClient(
+    f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
 
+db = client['user_details']
 
 
 
 @api_view(['GET','POST'])
 def users(request):
-    
-    client = pymongo.MongoClient(
-    f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
-
-    db = client['user_details']
-    
     if request.method=='GET':
         users=db['users'].find({})
         page = int(request.GET.get('page', 1))
@@ -75,17 +73,11 @@ def users(request):
         }
         db['users'].insert_one(data)
 
-        client.close()
-
         return Response(status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
 def filter_users(request):
-    client = pymongo.MongoClient(
-    f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
-
-    db = client['user_details']
     if request.method=="GET":
         search = request.GET.get("search")
         regex_pattern = f".*{search}.*"
@@ -112,4 +104,40 @@ def filter_users(request):
         all_documents = [{**doc, '_id': str(doc['_id'])} for doc in users]
         return Response(all_documents,status=status.HTTP_200_OK)
 
+@api_view(['PUT'])    
+def update_status(request,id,action):
+    user_id = ObjectId(id)
+    update=db['users'].update_one({"_id":user_id},{"$set":{"profile.status":action}})
+    print(update.modified_count)
+    return Response(status=status.HTTP_201_CREATED)
+
+@api_view(['GET']) 
+def advance_filter(request):
+    organization = json.loads(request.GET.get('organization')) if 'organization' in request.GET else None
+    profile = json.loads(request.GET.get('profile')) if 'profile' in request.GET else None
     
+    combined={}
+    if profile:
+        combined={**profile}
+    if organization:
+        combined={**combined,**organization}
+    
+    query={}
+
+    for key,value in combined.items():
+        if key=="profile" and len(value)>0:
+                for i,j in value.items():
+                    if j!='':
+                        query_key=f"profile.{i}"
+                        query[query_key] = j
+        if key=="organization" and len(value)>0:
+                for i,j in value.items():
+                    if j!='':
+                        query_key=f"organization.{i}"
+                        query[query_key] = j
+    print({"$and":[query]})
+    users=db['users'].find({"$and":[query]})
+    all_documents = [{**doc, '_id': str(doc['_id'])} for doc in users] 
+       
+    
+    return Response(all_documents,status=status.HTTP_200_OK)

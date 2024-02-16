@@ -91,23 +91,27 @@ def generate_random_max_income():
     # Generate a random account balance between 400.0 and 100,000.0
     return round(random.uniform(100000.0, 3000000.0), 2)
 
+def generate_random_number():
+    # Generate a random number with length ten
+    random_num = random.randint(10**(10-1), (10**10)-1)
+    return random_num
+
+
+banks=["Access", "Citibank", "Ecobank", "Fidelity", "First Bank", "FCMB", "Globus", "GTB", "Heritage", "Keystone", "Parallex", "Polaris", "Premium Trust", "Providus", "Stanbic IBTC", "Standard Chartered", "Sterling","SunTrust","Titan Trust","Union Bank", "UBA","Unity Bank","Wema","Zenith"]
+
 def add_random_nested_field_values():
     # Retrieve all documents in the collection
-    documents = db['users'].find({"profile":{"$exists":True}})
-    random_status=["Active","Blacklisted","Pending","Inactive"]
+    documents = db['users'].find({"account":{"$exists":True}})
+    # random_status=banks
     for doc in documents:
         # Generate random nested field values
-        status = generate_random_status(random_status)
+        status = generate_random_number()
         # Update the document with the generated nested field values
-        db['users'].update_one({"_id": doc["_id"]}, {"$set": {"profile.status": status}})
+        db['users'].update_one({"_id": doc["_id"]}, {"$set": {"account.accountNumber": status}})
 
 # Example usage: Add random nested field values to the "account" field in all documents
-# add_random_nested_field_values()
+
 # documents = db['users'].find({"status":{"$exists":True}})
 # for doc in documents:
 #     db['users'].update_one({"_id": doc["_id"]},{"$unset":{"status":""}})
-
-
-savings=db['users'].count_documents({"profile.status":"Active"})
-print(savings)
-client.close()
+# add_random_nested_field_values()
