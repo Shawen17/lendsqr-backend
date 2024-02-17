@@ -6,6 +6,8 @@ from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+
 SECRET_KEY = config("SECRET_KEY")
 
 
@@ -105,9 +107,9 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
     'DEFAULT_AUTHENTICATION_CLASSES':(
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'django.contrib.auth.backends.ModelBackend',
+        # 'django.contrib.auth.backends.ModelBackend',
         # 'allauth.account.auth_backends.AuthenticationBackend',
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
         
         ),
 }
@@ -116,6 +118,9 @@ SIMPLE_JWT = {
    'AUTH_HEADER_TYPES': ('JWT',),
    'ACCESS_TOKEN_LIFETIME':timedelta(minutes=60),
    'REFRESH_TOKEN_LIFETIME':timedelta(days=1),
+   'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'UPDATE_LAST_LOGIN': False,
 }
 
 
@@ -126,18 +131,19 @@ DJOSER = {
     'SEND_CONFIRMATION_EMAIL':True,
     'SET_PASSWORD_RETYPE':True,
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': 'activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': True,
+    # 'ACTIVATION_URL': 'activate/{uid}/{token}',
+    # 'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {
-        'user_create':'givers.serializers.UserCreateSerializer',
-        'user':'givers.serializers.UserCreateSerializer',
+        'user_create':'lendsqr.serializers.UserCreateSerializer',
+        'user':'lendsqr.serializers.UserCreateSerializer',
         'user_delete':'djoser.serializers.UserDeleteSerializer',
     },
 }
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Toronto'
+
 
 USE_I18N = True
 

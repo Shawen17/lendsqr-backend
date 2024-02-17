@@ -12,6 +12,8 @@ from datetime import datetime
 from bson.objectid import ObjectId
 
 
+
+
 db_user = config("DB_USER")
 db_password=config("PASSWORD")
 db_cluster = config("CLUSTERNAME")
@@ -22,7 +24,7 @@ db = client['user_details']
 
 
 
-@api_view(['GET','POST'])
+@api_view(['GET','POST','PUT'])
 def users(request):
     if request.method=='GET':
         users=db['users'].find({})
@@ -41,26 +43,24 @@ def users(request):
         return Response({"users_paginated":users_paginated,"all_users":all_users,"active":active,"loan":loan,"savings":savings},status=status.HTTP_200_OK)
 
     if request.method=='POST':
-        
         avatar=request.FILES.get('avatar')
-        
         media_root = settings.MEDIA_ROOT
         avatars_dir = os.path.join(media_root, 'avatars')
         os.makedirs(avatars_dir, exist_ok=True)
-
+        file_dir=os.path.normpath(os.path.join(settings.MEDIA_URL,"avatars",avatar.name))
+        file_dir = file_dir.replace("\\", "/")
         file_path = os.path.join(avatars_dir, avatar.name)
         with open(file_path, 'wb') as file:
             for chunk in avatar.chunks():
                 file.write(chunk)
 
         account = json.loads(request.POST.get('account')) if 'account' in request.POST else None
-        
         organization = json.loads(request.POST.get('organization')) if 'organization' in request.POST else None
         education = json.loads(request.POST.get('education')) if 'education' in request.POST else None
         socials = json.loads(request.POST.get('socials')) if 'socials' in request.POST else None
         guarantor = json.loads(request.POST.get('guarantor')) if 'guarantor' in request.POST else None
         profile = json.loads(request.POST.get('profile')) if 'profile' in request.POST else None
-        profile['avatar'] = file_path
+        profile['avatar'] = file_dir
 
         data ={
             "profile":profile,
@@ -74,6 +74,64 @@ def users(request):
         db['users'].insert_one(data)
 
         return Response(status=status.HTTP_201_CREATED)
+    
+    if request.method=="PUT":
+        data=request.data
+        user_id = data.get('user_id') 
+        user_id = ObjectId(user_id)
+        query_criteria={key:json.loads(data.get(key)) for key in data if key!="user_id" and key!="avatar"}
+        
+        if "avatar" in data:
+            avatar=request.FILES.get('avatar')
+            media_root = settings.MEDIA_ROOT
+            avatars_dir = os.path.join(media_root, 'avatars')
+            os.makedirs(avatars_dir, exist_ok=True)
+            file_path = os.path.join(avatars_dir, avatar.name)
+            file_dir=os.path.normpath(os.path.join(settings.MEDIA_URL,"avatars",avatar.name))
+            file_dir = file_dir.replace("\\", "/")
+            
+            if "profile" in data:
+                query_criteria["profile"]["avatar"]=file_dir
+            else:
+                query_criteria["profile"]={"avatar":file_dir}
+            with open(file_path, 'wb') as file:
+                for chunk in avatar.chunks():
+                    file.write(chunk)
+        query={}
+        for key,value in query_criteria.items():
+            for i,j in value.items():
+                query_key=f"{key}.{i}"
+                query[query_key] = j
+            # if key=="profile":
+            #     for i,j in value.items():
+            #         query_key=f"profile.{i}"
+            #         query[query_key] = j
+            # if key=="organization":
+            #     for i,j in value.items():
+            #         query_key=f"organization.{i}"
+            #         query[query_key] = j
+            # if key=="education":
+            #     for i,j in value.items():
+            #         query_key=f"education.{i}"
+            #         query[query_key] = j
+            # if key=="account":
+            #     for i,j in value.items():
+            #         query_key=f"account.{i}"
+            #         query[query_key] = j
+            # if key=="guarantor":
+            #     for i,j in value.items():
+            #         query_key=f"guarantor.{i}"
+            #         query[query_key] = j
+            # if key=="socials":
+            #     for i,j in value.items():
+            #         query_key=f"socials.{i}"
+            #         query[query_key] = j
+
+        db['users'].update_one({"_id":user_id},{"$set":query})
+        document=db['users'].find({"_id":user_id})
+        user = [{**doc, '_id': str(doc['_id'])} for doc in document][0]
+        
+        return Response(user,status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
@@ -108,7 +166,7 @@ def filter_users(request):
 def update_status(request,id,action):
     user_id = ObjectId(id)
     update=db['users'].update_one({"_id":user_id},{"$set":{"profile.status":action}})
-    print(update.modified_count)
+    
     return Response(status=status.HTTP_201_CREATED)
 
 @api_view(['GET']) 
