@@ -14,6 +14,7 @@ urlpatterns = [
     path('api/update/user/<str:id>/<str:action>',views.update_status),
     path('api/advance-filter/',views.advance_filter),
     path('api/get_staff_status/', views.get_staff_status,),
+    path('api/add-staff-portfolio/', views.assign_user_to_portfolio,),
 ]
 
 urlpatterns += static(settings.MEDIA_URL,document_root= settings.MEDIA_ROOT)

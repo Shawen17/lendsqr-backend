@@ -89,6 +89,7 @@ def users(request):
         data=request.data
         user_id = data.get('user_id') 
         user_id = ObjectId(user_id)
+        
         query_criteria={key:json.loads(data.get(key)) for key in data if key!="user_id" and key!="avatar"}
         
         if "avatar" in data:
@@ -184,9 +185,22 @@ def advance_filter(request):
                     if j!='':
                         query_key=f"organization.{i}"
                         query[query_key] = j
-    print({"$and":[query]})
+    
     users=db['users'].find({"$and":[query]})
     all_documents = [{**doc, '_id': str(doc['_id'])} for doc in users] 
        
-    
     return Response(all_documents,status=status.HTTP_200_OK)
+
+@api_view(['POST','GET'])
+def assign_user_to_portfolio(request):
+    if request.method=='POST':
+        data = request.data
+        query={"profile":{"firstName":data['first_name'],"lastName":data['last_name'],"email":data['email']},"createdAt":datetime.now()}
+        db['users'].insert_one(query)
+        return Response(status=status.HTTP_201_CREATED)
+    if request.method=='GET':
+        email=request.GET.get('email')
+        document = db['users'].find({"profile.email":email})
+        portfolio = [{**doc, '_id': str(doc['_id'])} for doc in document][0]
+
+        return Response(portfolio,status=status.HTTP_200_OK)
