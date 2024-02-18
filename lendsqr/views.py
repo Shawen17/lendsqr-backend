@@ -1,15 +1,17 @@
 from django.shortcuts import render
 import pymongo
 from rest_framework.response import Response
-from rest_framework.decorators import api_view 
+from rest_framework.decorators import api_view, permission_classes 
 from rest_framework import status
 from django.http import JsonResponse
 from decouple import config
 import json
+from .models import User
 import os 
 from django.conf import settings
 from datetime import datetime
 from bson.objectid import ObjectId
+from rest_framework.permissions import IsAuthenticated
 
 
 
@@ -23,13 +25,21 @@ client = pymongo.MongoClient(
 db = client['user_details']
 
 
+@permission_classes([IsAuthenticated])
+@api_view(['GET'])
+def get_staff_status(request):
+    email=request.GET.get('email')
+    user=User.objects.get(email=email)
+    is_staff = user.is_staff
+    return Response({'is_staff': is_staff})
 
+
+@permission_classes([IsAuthenticated])
 @api_view(['GET','POST','PUT'])
 def users(request):
     if request.method=='GET':
         users=db['users'].find({})
         page = int(request.GET.get('page', 1))
-        
         per_page = 20  
         start_index = (page - 1) * per_page
         end_index = page * per_page
@@ -102,31 +112,7 @@ def users(request):
             for i,j in value.items():
                 query_key=f"{key}.{i}"
                 query[query_key] = j
-            # if key=="profile":
-            #     for i,j in value.items():
-            #         query_key=f"profile.{i}"
-            #         query[query_key] = j
-            # if key=="organization":
-            #     for i,j in value.items():
-            #         query_key=f"organization.{i}"
-            #         query[query_key] = j
-            # if key=="education":
-            #     for i,j in value.items():
-            #         query_key=f"education.{i}"
-            #         query[query_key] = j
-            # if key=="account":
-            #     for i,j in value.items():
-            #         query_key=f"account.{i}"
-            #         query[query_key] = j
-            # if key=="guarantor":
-            #     for i,j in value.items():
-            #         query_key=f"guarantor.{i}"
-            #         query[query_key] = j
-            # if key=="socials":
-            #     for i,j in value.items():
-            #         query_key=f"socials.{i}"
-            #         query[query_key] = j
-
+            
         db['users'].update_one({"_id":user_id},{"$set":query})
         document=db['users'].find({"_id":user_id})
         user = [{**doc, '_id': str(doc['_id'])} for doc in document][0]
@@ -134,6 +120,7 @@ def users(request):
         return Response(user,status=status.HTTP_201_CREATED)
 
 
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def filter_users(request):
     if request.method=="GET":
@@ -162,13 +149,17 @@ def filter_users(request):
         all_documents = [{**doc, '_id': str(doc['_id'])} for doc in users]
         return Response(all_documents,status=status.HTTP_200_OK)
 
-@api_view(['PUT'])    
+
+@api_view(['PUT'])  
+@permission_classes([IsAuthenticated])  
 def update_status(request,id,action):
     user_id = ObjectId(id)
     update=db['users'].update_one({"_id":user_id},{"$set":{"profile.status":action}})
     
     return Response(status=status.HTTP_201_CREATED)
 
+
+@permission_classes([IsAuthenticated])
 @api_view(['GET']) 
 def advance_filter(request):
     organization = json.loads(request.GET.get('organization')) if 'organization' in request.GET else None

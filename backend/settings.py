@@ -128,11 +128,11 @@ DJOSER = {
     'LOGIN_FIELD':'email',
     'USER_CREATE_PASSWORD_RETYPE':True,
     'PASSWORD_CHANGED_EMAIL_CONFIRMATION':True,
-    'SEND_CONFIRMATION_EMAIL':True,
+    'SEND_CONFIRMATION_EMAIL':False,
     'SET_PASSWORD_RETYPE':True,
     'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
     # 'ACTIVATION_URL': 'activate/{uid}/{token}',
-    # 'SEND_ACTIVATION_EMAIL': False,
+    'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {
         'user_create':'lendsqr.serializers.UserCreateSerializer',
         'user':'lendsqr.serializers.UserCreateSerializer',

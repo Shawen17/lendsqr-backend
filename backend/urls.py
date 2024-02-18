@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/filter-users/',views.filter_users),
     path('api/update/user/<str:id>/<str:action>',views.update_status),
     path('api/advance-filter/',views.advance_filter),
+    path('api/get_staff_status/', views.get_staff_status,),
 ]
 
 urlpatterns += static(settings.MEDIA_URL,document_root= settings.MEDIA_ROOT)
