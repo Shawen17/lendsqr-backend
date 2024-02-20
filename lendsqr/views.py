@@ -194,9 +194,19 @@ def advance_filter(request):
 @api_view(['POST','GET'])
 def assign_user_to_portfolio(request):
     if request.method=='POST':
-        data = request.data
-        query={"profile":{"firstName":data['first_name'],"lastName":data['last_name'],"email":data['email']},"createdAt":datetime.now()}
-        db['users'].insert_one(query)
+        organization = json.loads(request.POST.get('organization')) if 'organization' in request.POST else None
+        education = json.loads(request.POST.get('education')) if 'education' in request.POST else None
+        socials = json.loads(request.POST.get('socials')) if 'socials' in request.POST else None
+        profile = json.loads(request.POST.get('profile')) if 'profile' in request.POST else None
+        
+        data ={
+            "profile":profile,
+            "organization": organization,
+            "education":education,
+            "socials":socials,
+            "createdAt":datetime.now()
+        }
+        db['users'].insert_one(data)
         return Response(status=status.HTTP_201_CREATED)
     if request.method=='GET':
         email=request.GET.get('email')
