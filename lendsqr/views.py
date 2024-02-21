@@ -26,7 +26,7 @@ db = client['user_details']
 
 
 @permission_classes([IsAuthenticated])
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def new_loan(request):
     if request.method=="POST":
         account = json.loads(request.POST.get('account')) if 'account' in request.POST else None
@@ -46,8 +46,11 @@ def new_loan(request):
         }
         db['loans'].insert_one(data)
 
-        return Response({"message": "Loan request processed successfully."},status=status.HTTP_201_CREATED)
-   
+        return Response({"message": "Loan request submitted successfully."},status=status.HTTP_201_CREATED)
+    email=request.GET.get('email')
+    loans=db['loans'].find({"loan.email":email})
+    all_documents = [{**doc, '_id': str(doc['_id'])} for doc in loans]
+    return Response(all_documents,status=status.HTTP_200_OK)
 
 
 
