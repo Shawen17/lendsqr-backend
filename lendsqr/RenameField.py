@@ -3,6 +3,7 @@ from decouple import config
 
 
 
+
 db_user = config("DB_USER")
 db_password=config("PASSWORD")
 db_cluster = config("CLUSTERNAME")
