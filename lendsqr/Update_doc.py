@@ -31,7 +31,7 @@ db_cluster = config("CLUSTERNAME")
 
 # def move_data():
 #     result2=result_queue.get()
-#     client2 = pymongo.MongoClient("mongodb://shawen:Shawenbaba1@localhost:27017/")
+#     client2 = pymongo.MongoClient(f"mongodb://shawen:{db_password}@localhost:27017/")
 #     collection2 = client2['user_details']
 #     [collection2['loans'].insert_one(doc) for doc in result2]
 
