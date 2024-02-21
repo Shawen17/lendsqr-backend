@@ -26,6 +26,32 @@ db = client['user_details']
 
 
 @permission_classes([IsAuthenticated])
+@api_view(['POST'])
+def new_loan(request):
+    if request.method=="POST":
+        account = json.loads(request.POST.get('account')) if 'account' in request.POST else None
+        guarantor = json.loads(request.POST.get('guarantor')) if 'guarantor' in request.POST else None
+        loan = json.loads(request.POST.get('loan')) if 'loan' in request.POST else None
+        email= loan['email']
+        result = db['users'].find_one({
+            "profile.email": email,
+            "$or": [{"profile.status": "Active"}, {"profile.status": "Blacklisted"}]})
+        if result:
+            return Response({"message": "Cannot make a new loan request while you have an active loan."}, status=status.HTTP_409_CONFLICT)
+        data={
+            "account":account,
+            "guarantor":guarantor,
+            "loan":loan,
+            "createdAt":datetime.now()
+        }
+        db['loans'].insert_one(data)
+
+        return Response({"message": "Loan request processed successfully."},status=status.HTTP_201_CREATED)
+   
+
+
+
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_staff_status(request):
     email=request.GET.get('email')
@@ -210,6 +236,7 @@ def assign_user_to_portfolio(request):
         return Response(status=status.HTTP_201_CREATED)
     if request.method=='GET':
         email=request.GET.get('email')
+        
         document = db['users'].find({"profile.email":email})
         portfolio = [{**doc, '_id': str(doc['_id'])} for doc in document][0]
 
