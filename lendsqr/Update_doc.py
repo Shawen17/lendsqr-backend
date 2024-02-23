@@ -17,35 +17,35 @@ db_cluster = config("CLUSTERNAME")
 
 #client2 = pymongo.MongoClient("mongodb://shawen:Shawenbaba1@localhost:27017/user_details")
 
-# result_queue = queue.Queue()
+result_queue = queue.Queue()
 
-# db = client['user_details']
-# collection2 = client2['user_details']
+# # db = client['user_details']
+# # collection2 = client2['user_details']
 
-# def get_data():
-#     client = pymongo.MongoClient(
-#     f"mongodb+srv://{db_user}:{db_password}@{db_cluster}.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
-#     db = client['user_details']
-#     query = db['loans'].find()
-#     result_queue.put(query)
+def get_data():
+    client = pymongo.MongoClient(
+    f"mongodb+srv://shawen17:{db_password}@shawencluster.jzsljb4.mongodb.net/?retryWrites=true&w=majority")
+    db = client['user_details']
+    query = db['loans'].find()
+    result_queue.put(query)
 
-# def move_data():
-#     result2=result_queue.get()
-#     client2 = pymongo.MongoClient(f"mongodb://shawen:{db_password}@localhost:27017/")
-#     collection2 = client2['user_details']
-#     [collection2['loans'].insert_one(doc) for doc in result2]
+def move_data():
+    result2=result_queue.get()
+    client2 = pymongo.MongoClient(f"mongodb://shawen:{db_password}@localhost:27017/")
+    collection2 = client2['user_details']
+    [collection2['loans'].insert_one(doc) for doc in result2]
 
 
 
-# thread1 = threading.Thread(target=get_data)
-# thread1.start()
+thread1 = threading.Thread(target=get_data)
+thread1.start()
 
-# # Create and start the second thread
-# thread2 = threading.Thread(target=move_data)
-# thread2.start()
+# Create and start the second thread
+thread2 = threading.Thread(target=move_data)
+thread2.start()
 
-# thread1.join()
-# thread2.join()
+thread1.join()
+thread2.join()
 
 
 # documents = db['users'].find({"education.level": {"$exists": True}})
