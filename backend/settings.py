@@ -83,7 +83,7 @@ DATABASES = {
         'NAME': 'user_details',
         'USER': config("DB_USER"),
         'PASSWORD': config("PASSWORD"),
-        'HOST': 'shawendb.cxqskowkmkuq.eu-north-1.rds.amazonaws.com', 
+        'HOST': config("HOST"), 
         'PORT': 3306,  
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
