@@ -13,7 +13,7 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["localhost","127.0.0.1",'oluwaseun-johnson-lendsqr-fe-test.netlify.app','lendsqr-backend.vercel.app']
+ALLOWED_HOSTS = ["localhost","127.0.0.1",'oluwaseun-johnson-lendsqr-fe-test.netlify.app','lendsqr-backend.vercel.app','lendsqr-backend-hgvvxsn3q-shawen17.vercel.app']
 
 
 # Application definition
