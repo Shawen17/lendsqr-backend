@@ -197,7 +197,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    'https://oluwaseun-johnson-lendsqr-fe-test.netlify.app',
+]
 
 AUTH_USER_MODEL = "lendsqr.User"
 
