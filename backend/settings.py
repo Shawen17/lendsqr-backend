@@ -8,12 +8,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-SECRET_KEY = config("SECRET_KEY")
+SECRET_KEY = config('SECRET_KEY')
 
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost","127.0.0.1"]
+ALLOWED_HOSTS = ["localhost","127.0.0.1",'oluwaseun-johnson-lendsqr-fe-test.netlify.app']
 
 
 # Application definition
@@ -77,17 +77,28 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'user_details',
+#         'USER': config('DB_USER'),
+#         'PASSWORD': config('PASSWORD'),
+#         'HOST': config('HOST'), 
+#         'PORT': 3306,  
+#         'OPTIONS': {
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+#         },     
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'user_details',
-        'USER': config("DB_USER"),
-        'PASSWORD': config("PASSWORD"),
-        'HOST': config("HOST"), 
-        'PORT': 3306,  
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },     
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'railway',
+        'USER': 'postgres',
+        'PASSWORD': config('AUTH_PASSWORD'),
+        'HOST': config('HOST'),
+        'PORT': 52687,
     }
 }
 
