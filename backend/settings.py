@@ -13,28 +13,15 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = False
 
-import re
-
-# Regular expression to match any subdomain ending with vercel.app
-ALLOWED_HOSTS_REGEX = r'^[a-zA-Z0-9.-]+\.(vercel\.app)$'
-
-# Check if the host matches the regex
-def is_vercel_app(host):
-    return re.match(ALLOWED_HOSTS_REGEX, host) is not None
-
-# Check if the host is allowed
-def is_allowed_host(host):
-    return host == 'localhost' or host == '127.0.0.1' or host == 'oluwaseun-johnson-lendsqr-fe-test.netlify.app' or is_vercel_app(host)
-
 ALLOWED_HOSTS = [
-    host for host in [
+   
         'localhost',
         '127.0.0.1',
         'oluwaseun-johnson-lendsqr-fe-test.netlify.app',
-        'your-vercel-subdomain.vercel.app',  # Add your specific vercel.app subdomains here
-        'another-vercel-subdomain.vercel.app',  # Add more if needed
-    ] if is_allowed_host(host)
-]
+        'lendsqr-backend-*.vercel.app', 
+        
+    ] 
+
 
 
 
