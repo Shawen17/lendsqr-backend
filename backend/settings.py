@@ -199,6 +199,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 CORS_ORIGIN_WHITELIST = [
     'https://oluwaseun-johnson-lendsqr-fe-test.netlify.app',
+    'https://lendsqr-backend.vercel.app'
 ]
 
 AUTH_USER_MODEL = "lendsqr.User"
