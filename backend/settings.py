@@ -24,7 +24,7 @@ def is_vercel_app(host):
 
 # Check if the host is allowed
 def is_allowed_host(host):
-    return host == 'localhost' or host == '127.0.0.1' or host= 'oluwaseun-johnson-lendsqr-fe-test.netlify.app' or is_vercel_app(host)
+    return host == 'localhost' or host == '127.0.0.1' or host == 'oluwaseun-johnson-lendsqr-fe-test.netlify.app' or is_vercel_app(host)
 
 ALLOWED_HOSTS = [
     host for host in [
