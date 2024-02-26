@@ -18,7 +18,7 @@ ALLOWED_HOSTS = [
         'localhost',
         '127.0.0.1',
         'oluwaseun-johnson-lendsqr-fe-test.netlify.app',
-        'lendsqr-backend-*.vercel.app', 
+        'lendsqr-backend.vercel.app', 
         
     ] 
 
