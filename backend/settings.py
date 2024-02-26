@@ -17,7 +17,7 @@ ALLOWED_HOSTS = [
    
         'localhost',
         '127.0.0.1',
-        'www.lendsqr-backend.vercel.app', 
+        'lendsqr-backend.vercel.app', 
         
     ] 
 
