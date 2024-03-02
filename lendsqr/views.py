@@ -13,6 +13,9 @@ from datetime import datetime
 from bson.objectid import ObjectId
 from rest_framework.permissions import IsAuthenticated
 from contextlib import contextmanager
+import gridfs
+from django.http import FileResponse
+import boto3
 
 
 
@@ -94,24 +97,30 @@ def users(request):
             return Response({"users_paginated":users_paginated,"all_users":all_users,"active":active,"loan":loan,"savings":savings},status=status.HTTP_200_OK)
 
         if request.method=='POST':
-            avatar=request.FILES.get('avatar')
-            media_root = settings.MEDIA_ROOT
-            avatars_dir = os.path.join(media_root, 'avatars')
-            os.makedirs(avatars_dir, exist_ok=True)
-            file_dir=os.path.normpath(os.path.join(settings.MEDIA_URL,"avatars",avatar.name))
-            file_dir = file_dir.replace("\\", "/")
-            file_path = os.path.join(avatars_dir, avatar.name)
-            with open(file_path, 'wb') as file:
-                for chunk in avatar.chunks():
-                    file.write(chunk)
-
+            avatar=request.FILES.get('avatar') if "avatar" in request.FILES else None
             account = json.loads(request.POST.get('account')) if 'account' in request.POST else None
             organization = json.loads(request.POST.get('organization')) if 'organization' in request.POST else None
             education = json.loads(request.POST.get('education')) if 'education' in request.POST else None
             socials = json.loads(request.POST.get('socials')) if 'socials' in request.POST else None
             guarantor = json.loads(request.POST.get('guarantor')) if 'guarantor' in request.POST else None
             profile = json.loads(request.POST.get('profile')) if 'profile' in request.POST else None
-            profile['avatar'] = file_dir
+            # file_db = client['db_files']
+            # if avatar:
+            #     data = avatar.read()
+            #     fs = gridfs.GridFS(file_db)
+            #     fs.put(data,filename = avatar.name,email = profile['email'])
+            #     profile['avatar'] = avatar.name
+            if avatar:
+                s3 = boto3.client('s3',
+                          aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+                try:
+                    s3.upload_fileobj(avatar, settings.AWS_STORAGE_BUCKET_NAME, f'media/avatars/{avatar.name}',ExtraArgs={'ContentType': 'image/jpeg', 'ContentDisposition': 'inline'})
+                except Exception as e:
+                    return Response({'error': str(e)}, status=500)
+                file_dir=os.path.normpath(os.path.join(settings.MEDIA_URL,"avatars",avatar.name))
+                file_dir = file_dir.replace("\\", "/")
+                profile['avatar'] = file_dir
 
             data ={
                 "profile":profile,
@@ -123,7 +132,6 @@ def users(request):
                 "createdAt":datetime.now()
             }
             db['users'].insert_one(data)
-
             return Response(status=status.HTTP_201_CREATED)
         
         if request.method=="PUT":
@@ -133,22 +141,23 @@ def users(request):
             
             query_criteria={key:json.loads(data.get(key)) for key in data if key!="user_id" and key!="avatar"}
             
-            if "avatar" in data:
+            if 'avatar' in data:
                 avatar=request.FILES.get('avatar')
-                media_root = settings.MEDIA_ROOT
-                avatars_dir = os.path.join(media_root, 'avatars')
-                os.makedirs(avatars_dir, exist_ok=True)
-                file_path = os.path.join(avatars_dir, avatar.name)
+                s3 = boto3.client('s3',
+                          aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                          aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
+                try:
+                    s3.upload_fileobj(avatar, settings.AWS_STORAGE_BUCKET_NAME, f'media/avatars/{avatar.name}',ExtraArgs={'ContentType': 'image/jpeg', 'ContentDisposition': 'inline'})
+                except Exception as e:
+                    return Response({'error': str(e)}, status=500)
                 file_dir=os.path.normpath(os.path.join(settings.MEDIA_URL,"avatars",avatar.name))
                 file_dir = file_dir.replace("\\", "/")
                 
                 if "profile" in data:
-                    query_criteria["profile"]["avatar"]=file_dir
+                    query_criteria["profile"]["avatar"] = file_dir
                 else:
-                    query_criteria["profile"]={"avatar":file_dir}
-                with open(file_path, 'wb') as file:
-                    for chunk in avatar.chunks():
-                        file.write(chunk)
+                    db['users'].update_one({'_id': user_id},{'$set': {'profile.avatar': file_dir}})
+                    
             query={}
             for key,value in query_criteria.items():
                 for i,j in value.items():
@@ -260,8 +269,8 @@ def assign_user_to_portfolio(request):
             return Response(status=status.HTTP_201_CREATED)
         if request.method=='GET':
             email=request.GET.get('email')
-            
             document = db['users'].find({"profile.email":email})
             portfolio = [{**doc, '_id': str(doc['_id'])} for doc in document][0]
-
+            
             return Response(portfolio,status=status.HTTP_200_OK)
+

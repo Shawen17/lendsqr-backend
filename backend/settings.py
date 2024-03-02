@@ -110,6 +110,9 @@ DATABASES = {
     }
 }
 
+GRIDFS_STORAGE_DB = 'user_details'
+GRIDFS_STORAGE_COLLECTION = 'images'
+
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -183,18 +186,25 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = 'shawenmedia'
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {"CacheControl" : "max-age=86400"}
+AWS_DEFAULT_ACL = 'public-read'
 
-STATIC_URL = 'static/'
 
+AWS_LOCATION = 'staticfiles'
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'staticfiles')]
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE='storages.backends.s3boto3.S3Boto3Storage'
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+DEFAULT_FILE_STORAGE = 'backend.storages.MediaStore'
+
+# STATIC_URL = 'static/'
+MEDIA_DIR = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
 MEDIA_URL = '/media/'
-
-STATICFILES_STORAGE='whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL = os.path.join(BASE_DIR, 'media')
 
 CORS_ORIGIN_WHITELIST = [
     'https://oluwaseun-johnson-lendsqr-fe-test.netlify.app',

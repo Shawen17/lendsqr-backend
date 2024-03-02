@@ -16,6 +16,9 @@ urlpatterns = [
     path('api/get_staff_status/', views.get_staff_status,),
     path('api/add-staff-portfolio/', views.assign_user_to_portfolio,),
     path('api/loan/', views.new_loan,),
+    
 ]
 
-urlpatterns += static(settings.MEDIA_URL,document_root= settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,document_root= settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_DIR)

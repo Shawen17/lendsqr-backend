@@ -38,3 +38,5 @@ urllib3==2.2.0
 virtualenv==20.22.0
 whitenoise==6.6.0
 pymongo[srv]
+boto3
+django-storages
