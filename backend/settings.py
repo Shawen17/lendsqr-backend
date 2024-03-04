@@ -2,13 +2,16 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from decouple import config
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 
 DEBUG = False
@@ -104,8 +107,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'railway',
         'USER': 'postgres',
-        'PASSWORD': config('AUTH_PASSWORD'),
-        'HOST': config('HOST'),
+        'PASSWORD': os.getenv('AUTH_PASSWORD'),
+        'HOST': os.getenv('HOST'),
         'PORT': 52687,
     }
 }
@@ -185,8 +188,8 @@ USE_I18N = True
 USE_TZ = True
 
 
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = 'shawenmedia'
 AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 AWS_S3_OBJECT_PARAMETERS = {"CacheControl" : "max-age=86400"}
@@ -198,7 +201,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR,'staticfiles')]
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE='storages.backends.s3boto3.S3Boto3Storage'
 STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
-# DEFAULT_FILE_STORAGE = 'backend.storages.MediaStore'
+DEFAULT_FILE_STORAGE = 'backend.storages.MediaStore'
 
 # STATIC_URL = 'static/'
 MEDIA_DIR = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
